@@ -1,11 +1,13 @@
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { useStory } from "../hooks/useStory";
+import { LoadingSkeleton } from "../components/LoadingSkeleton";
+import { ErrorState } from "../components/ErrorState";
 
 export const DetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const storyId = id ? parseInt(id, 10) : 0;
-  const { data: story, isLoading, error } = useStory(storyId);
+  const { data: story, isLoading, error, refetch } = useStory(storyId);
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp * 1000);
@@ -28,31 +30,26 @@ export const DetailPage: React.FC = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="max-w-4xl mx-auto">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2 mb-6"></div>
-          <div className="space-y-3">
-            <div className="h-4 bg-gray-200 rounded"></div>
-            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-            <div className="h-4 bg-gray-200 rounded w-4/6"></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingSkeleton type="detail" />;
   }
 
   if (error || !story) {
     return (
-      <div className="max-w-4xl mx-auto text-center py-12">
-        <div className="text-red-600 text-lg font-medium">Story not found</div>
-        <Link
-          to="/"
-          className="mt-4 inline-block text-blue-600 hover:text-blue-700"
-        >
-          ← Back to stories
-        </Link>
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6">
+          <Link
+            to="/"
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            ← Back to stories
+          </Link>
+        </div>
+        <ErrorState
+          title="Story not found"
+          message="The story you're looking for doesn't exist or has been removed."
+          onRetry={() => refetch()}
+          showRetry={!!error}
+        />
       </div>
     );
   }

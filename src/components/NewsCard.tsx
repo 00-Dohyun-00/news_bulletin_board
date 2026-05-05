@@ -63,15 +63,15 @@ export const NewsCard: React.FC<NewsCardProps> = ({ story }) => {
   const imageUrl = getImageUrl(story.url)
 
   return (
-    <div 
-      className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200"
+    <article 
+      className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 hover:border-blue-200 group"
       onMouseEnter={handlePrefetch}
     >
-      <div className="flex items-center p-4 gap-4">
+      <div className="flex items-start p-3 sm:p-4 gap-3 sm:gap-4">
         {/* 이미지 섹션 */}
         <div className="flex-shrink-0">
           {imageUrl && !imageError ? (
-            <div className="relative w-20 h-20 overflow-hidden rounded-lg bg-gray-100">
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 overflow-hidden rounded-lg bg-gray-100">
               {!imageLoaded && (
                 <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-lg" />
               )}
@@ -86,37 +86,38 @@ export const NewsCard: React.FC<NewsCardProps> = ({ story }) => {
               />
             </div>
           ) : (
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
-              <div className="text-2xl">📰</div>
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
+              <div className="text-lg sm:text-2xl">📰</div>
             </div>
           )}
         </div>
 
         {/* 컨텐츠 섹션 */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start justify-between gap-2 sm:gap-4">
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 leading-tight mb-1">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 line-clamp-2 leading-tight mb-1 sm:mb-2">
                 <Link
                   to={`/story/${story.id}`}
-                  className="hover:text-blue-600 transition-colors"
+                  className="hover:text-blue-600 transition-colors focus:outline-none focus:text-blue-600 group-hover:text-blue-600"
+                  aria-label={`Read full story: ${story.title}`}
                 >
                   {story.title}
                 </Link>
               </h3>
               
-              <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-2">
                 <span>by <span className="font-medium">{story.by}</span></span>
-                <span>•</span>
-                <span>{formatTime(story.time)}</span>
+                <span className="hidden sm:inline">•</span>
+                <span className="text-xs sm:text-sm">{formatTime(story.time)}</span>
                 {story.url && (
                   <>
-                    <span>•</span>
+                    <span className="hidden sm:inline">•</span>
                     <a
                       href={story.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 transition-colors"
+                      className="text-blue-600 hover:text-blue-800 transition-colors text-xs sm:text-sm truncate max-w-[120px] sm:max-w-none"
                     >
                       {getDomain(story.url)} ↗
                     </a>
@@ -124,7 +125,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ story }) => {
                 )}
               </div>
 
-              <div className="flex items-center gap-4 text-sm">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm">
                 {story.score && (
                   <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
                     {story.score} pts
@@ -133,7 +134,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ story }) => {
                 {story.descendants !== undefined && (
                   <Link
                     to={`/story/${story.id}`}
-                    className="text-gray-600 hover:text-blue-600 transition-colors"
+                    className="text-gray-600 hover:text-blue-600 transition-colors text-xs sm:text-sm"
                   >
                     {story.descendants} comments
                   </Link>
@@ -143,6 +144,6 @@ export const NewsCard: React.FC<NewsCardProps> = ({ story }) => {
           </div>
         </div>
       </div>
-    </div>
+    </article>
   )
 }

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { Tabs } from '../components/Tabs'
 import { NewsCard } from '../components/NewsCard'
+import { LoadingSkeleton } from '../components/LoadingSkeleton'
+import { ErrorState } from '../components/ErrorState'
+import { EmptyState } from '../components/EmptyState'
 import { useInfiniteStories } from '../hooks/useInfiniteStories'
 import { StoryType } from '../types/news'
 
@@ -13,7 +16,8 @@ export const ListPage: React.FC = () => {
     error, 
     fetchNextPage, 
     hasNextPage, 
-    isFetchingNextPage 
+    isFetchingNextPage,
+    refetch
   } = useInfiniteStories(activeTab)
   
   const { ref, inView } = useInView({
@@ -35,20 +39,7 @@ export const ListPage: React.FC = () => {
     return (
       <div className="space-y-6">
         <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
-        <div className="space-y-4">
-          {Array.from({ length: 10 }).map((_, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 animate-pulse">
-              <div className="flex items-center p-4 gap-4">
-                <div className="w-20 h-20 bg-gray-200 rounded-lg" />
-                <div className="flex-1 space-y-3">
-                  <div className="h-5 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <LoadingSkeleton count={8} />
       </div>
     )
   }
@@ -57,20 +48,16 @@ export const ListPage: React.FC = () => {
     return (
       <div className="space-y-6">
         <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
-        <div className="text-center py-12">
-          <div className="text-red-600 text-lg font-medium">
-            Error loading stories
-          </div>
-          <p className="text-gray-500 mt-2">
-            Please try again later
-          </p>
-        </div>
+        <ErrorState 
+          onRetry={() => refetch()}
+          message="We couldn't load the stories. Please check your internet connection and try again."
+        />
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-300">
       <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
       
       {allStories.length > 0 ? (
@@ -81,14 +68,14 @@ export const ListPage: React.FC = () => {
           
           {/* Infinite scroll trigger */}
           {hasNextPage && (
-            <div ref={ref} className="flex justify-center py-8">
+            <div ref={ref} className="flex justify-center py-8 transition-all duration-300">
               {isFetchingNextPage ? (
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3 animate-in fade-in duration-300">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-600">Loading more stories...</span>
+                  <span className="text-gray-600 font-medium">Loading more stories...</span>
                 </div>
               ) : (
-                <div className="text-gray-400 text-sm">Scroll for more stories</div>
+                <div className="text-gray-400 text-sm animate-pulse">Scroll for more stories</div>
               )}
             </div>
           )}
@@ -102,11 +89,14 @@ export const ListPage: React.FC = () => {
           )}
         </div>
       ) : !isLoading ? (
-        <div className="text-center py-12">
-          <div className="text-gray-600 text-lg">
-            No stories available
-          </div>
-        </div>
+        <EmptyState 
+          title="No stories found"
+          message={`No ${activeTab} stories are available at the moment. Try switching to a different category or check back later.`}
+          action={{
+            label: 'Refresh Page',
+            onClick: () => refetch()
+          }}
+        />
       ) : null}
     </div>
   )

@@ -15,12 +15,20 @@ export const Tabs: React.FC<TabsProps> = ({ activeTab, onTabChange }) => {
 
   return (
     <div className="border-b border-gray-200">
-      <nav className="-mb-px flex space-x-8">
+      <nav
+        className="-mb-px flex space-x-8"
+        role="tablist"
+        aria-label="Story categories"
+      >
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => onTabChange(tab.key)}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            role="tab"
+            aria-selected={activeTab === tab.key}
+            aria-controls={`${tab.key}-panel`}
+            style={{ outline: 'none', WebkitTapHighlightColor: 'transparent' }}
+            className={`py-3 px-2 border-b-2 font-medium text-sm transition-all duration-200 focus:outline-none active:outline-none focus-visible:outline-none ${
               activeTab === tab.key
                 ? "border-blue-500 text-blue-600"
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"

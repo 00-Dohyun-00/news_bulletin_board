@@ -2,6 +2,10 @@
 
 React + TypeScript로 구축된 Hacker News API 기반 뉴스 게시판 애플리케이션
 
+## vercel 배포
+
+https://newsbulletinboard.vercel.app/
+
 ## 🚀 기술 스택
 
 - **Frontend**: React 18, TypeScript

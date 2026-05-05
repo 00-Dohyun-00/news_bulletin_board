@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { Story } from '../types/news'
+import { hackerNewsApi } from '../api/hackerNews'
 
 interface NewsCardProps {
   story: Story
@@ -9,6 +11,15 @@ interface NewsCardProps {
 export const NewsCard: React.FC<NewsCardProps> = ({ story }) => {
   const [imageError, setImageError] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
+  const queryClient = useQueryClient()
+
+  const handlePrefetch = () => {
+    queryClient.prefetchQuery({
+      queryKey: ['story', story.id],
+      queryFn: () => hackerNewsApi.getStory(story.id),
+      staleTime: 10 * 60 * 1000,
+    })
+  }
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp * 1000)
@@ -52,7 +63,10 @@ export const NewsCard: React.FC<NewsCardProps> = ({ story }) => {
   const imageUrl = getImageUrl(story.url)
 
   return (
-    <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200">
+    <div 
+      className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200"
+      onMouseEnter={handlePrefetch}
+    >
       <div className="flex items-center p-4 gap-4">
         {/* 이미지 섹션 */}
         <div className="flex-shrink-0">

@@ -11,6 +11,7 @@ interface NewsCardProps {
 export const NewsCard: React.FC<NewsCardProps> = ({ story }) => {
   const [imageError, setImageError] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const queryClient = useQueryClient()
 
   const handlePrefetch = () => {
@@ -45,22 +46,32 @@ export const NewsCard: React.FC<NewsCardProps> = ({ story }) => {
     }
   }
 
-  const getImageUrl = (url?: string) => {
-    if (!url) return null
-    
+  const getImageUrls = (url?: string) => {
     const domain = getDomain(url)
+    const seed = story.id % 1000
     
-    // 도메인별 이미지 생성
-    const imageServices = [
-      `https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&meta=false&embed=screenshot.url`,
-      `https://shot.screenshotapi.net/screenshot?token=demo&url=${encodeURIComponent(url)}&width=400&height=300&file_type=png`,
-      `https://placeholder.pics/svg/400x300/DEDEDE/555555/${encodeURIComponent(domain || 'News')}`
+    // 여러 fallback 이미지 서비스
+    return [
+      // Picsum Photos - 매우 안정적
+      `https://picsum.photos/seed/${seed}/400/300`,
+      // UI Avatars - 텍스트 기반
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(domain || 'News')}&size=400&background=3b82f6&color=fff&format=png`,
+      // DummyImage - 심플한 플레이스홀더
+      `https://dummyimage.com/400x300/3b82f6/ffffff&text=${encodeURIComponent(domain || 'News')}`
     ]
-    
-    return imageServices[2] // 플레이스홀더 이미지 사용
   }
 
-  const imageUrl = getImageUrl(story.url)
+  const imageUrls = getImageUrls(story.url)
+  const currentImageUrl = imageUrls[currentImageIndex]
+
+  const handleImageError = () => {
+    if (currentImageIndex < imageUrls.length - 1) {
+      setCurrentImageIndex(prev => prev + 1)
+      setImageLoaded(false)
+    } else {
+      setImageError(true)
+    }
+  }
 
   return (
     <article 
@@ -70,23 +81,24 @@ export const NewsCard: React.FC<NewsCardProps> = ({ story }) => {
       <div className="flex items-start p-3 sm:p-4 gap-3 sm:gap-4">
         {/* 이미지 섹션 */}
         <div className="flex-shrink-0">
-          {imageUrl && !imageError ? (
+          {currentImageUrl && !imageError ? (
             <div className="relative w-16 h-16 sm:w-20 sm:h-20 overflow-hidden rounded-lg bg-gray-100">
               {!imageLoaded && (
                 <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-lg" />
               )}
               <img
-                src={imageUrl}
-                alt={story.title}
+                src={currentImageUrl}
+                alt={`Thumbnail for ${story.title}`}
                 className={`w-full h-full object-cover transition-opacity duration-300 ${
                   imageLoaded ? 'opacity-100' : 'opacity-0'
                 }`}
                 onLoad={() => setImageLoaded(true)}
-                onError={() => setImageError(true)}
+                onError={handleImageError}
+                loading="lazy"
               />
             </div>
           ) : (
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
               <div className="text-lg sm:text-2xl">📰</div>
             </div>
           )}

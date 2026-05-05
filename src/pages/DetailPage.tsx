@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useStory } from "../hooks/useStory";
 import { LoadingSkeleton } from "../components/LoadingSkeleton";
@@ -8,6 +8,9 @@ export const DetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const storyId = id ? parseInt(id, 10) : 0;
   const { data: story, isLoading, error, refetch } = useStory(storyId);
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp * 1000);
@@ -26,6 +29,33 @@ export const DetailPage: React.FC = () => {
       return new URL(url).hostname;
     } catch {
       return "";
+    }
+  };
+
+  const getImageUrls = (url?: string) => {
+    if (!story) return [];
+    
+    const domain = getDomain(url);
+    const seed = story.id % 1000;
+    
+    // 여러 fallback 이미지 서비스
+    return [
+      // Picsum Photos - 더 큰 이미지로
+      `https://picsum.photos/seed/${seed}/800/400`,
+      // UI Avatars - 텍스트 기반
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(domain || 'News')}&size=800&background=3b82f6&color=fff&format=png`,
+      // DummyImage - 심플한 플레이스홀더  
+      `https://dummyimage.com/800x400/3b82f6/ffffff&text=${encodeURIComponent(domain || 'News')}`
+    ];
+  };
+
+  const handleImageError = () => {
+    const imageUrls = getImageUrls(story?.url);
+    if (currentImageIndex < imageUrls.length - 1) {
+      setCurrentImageIndex(prev => prev + 1);
+      setImageLoaded(false);
+    } else {
+      setImageError(true);
     }
   };
 
@@ -66,6 +96,28 @@ export const DetailPage: React.FC = () => {
       </div>
 
       <article className="bg-white rounded-lg shadow-lg p-8">
+        {/* Hero Image */}
+        {!imageError && (
+          <div className="mb-8 -mx-8 -mt-8">
+            <div className="relative h-64 sm:h-80 overflow-hidden rounded-t-lg bg-gray-100">
+              {!imageLoaded && (
+                <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+              )}
+              <img
+                src={getImageUrls(story.url)[currentImageIndex]}
+                alt={`Cover image for ${story.title}`}
+                className={`w-full h-full object-cover transition-opacity duration-300 ${
+                  imageLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                onLoad={() => setImageLoaded(true)}
+                onError={handleImageError}
+                loading="eager"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+            </div>
+          </div>
+        )}
+
         <header className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-6 leading-tight">
             {story.title}

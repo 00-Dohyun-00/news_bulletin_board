@@ -16,6 +16,10 @@ export const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({
         <div className="h-4 bg-gray-200 rounded w-24 mb-6"></div>
         
         <div className="bg-white rounded-lg shadow-lg p-8">
+          {/* Hero Image skeleton */}
+          <div className="mb-8 -mx-8 -mt-8">
+            <div className="h-64 sm:h-80 bg-gray-200 rounded-t-lg"></div>
+          </div>
           {/* Title skeleton */}
           <div className="space-y-3 mb-8">
             <div className="h-8 bg-gray-200 rounded w-3/4"></div>

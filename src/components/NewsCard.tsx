@@ -83,23 +83,12 @@ export const NewsCard: React.FC<NewsCardProps> = ({ story }) => {
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 leading-tight mb-1">
-                {story.url ? (
-                  <a
-                    href={story.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-blue-600 transition-colors"
-                  >
-                    {story.title}
-                  </a>
-                ) : (
-                  <Link
-                    to={`/story/${story.id}`}
-                    className="hover:text-blue-600 transition-colors"
-                  >
-                    {story.title}
-                  </Link>
-                )}
+                <Link
+                  to={`/story/${story.id}`}
+                  className="hover:text-blue-600 transition-colors"
+                >
+                  {story.title}
+                </Link>
               </h3>
               
               <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
@@ -109,7 +98,14 @@ export const NewsCard: React.FC<NewsCardProps> = ({ story }) => {
                 {story.url && (
                   <>
                     <span>•</span>
-                    <span className="text-blue-600">{getDomain(story.url)}</span>
+                    <a
+                      href={story.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 transition-colors"
+                    >
+                      {getDomain(story.url)} ↗
+                    </a>
                   </>
                 )}
               </div>
